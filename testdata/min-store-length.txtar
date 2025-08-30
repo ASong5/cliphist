@@ -1,0 +1,19 @@
+exec randstr 16
+stdin stdout
+exec cliphist store
+
+exec randstr 3
+stdin stdout
+exec cliphist -min-store-length 3 store
+
+# we stored everything so far
+exec cliphist list
+stdout -count=2 '^.'
+
+exec randstr 4
+stdin stdout
+exec cliphist -min-store-length 3 store
+
+# we didn't store the last, 4 > 3
+exec cliphist list
+stdout -count=2 '^.'

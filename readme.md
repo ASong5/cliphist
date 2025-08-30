@@ -202,6 +202,7 @@ The list of available options is:
 | ------------------ | --------------------------- | ----------------- | --------------------------------------------------------------------------------------------- |
 | -max-dedupe-search | CLIPHIST_MAX_DEDEUPE_SEARCH | max-dedupe-search | (Optional) maximum number of last items to look through when finding duplicates (default 100) |
 | -max-items         | CLIPHIST_MAX_ITEMS          | max-items         | (Optional) maximum number of items to store (default 750)                                     |
+| -min-store-length  | CLIPHIST_MIN_STORE_LENGTH   | min-store-length  | (Optional) minimum number of characters to store                                              |
 | -preview-width     | CLIPHIST_PREVIEW_WIDTH      | preview-width     | (Optional) maximum number of characters to preview (default 100)                              |
 | -db-path           | CLIPHIST_DB_PATH            | db-path           | (Optional) path to db (default `$XDG_CACHE_HOME/cliphist/db`)                                 |
 | -config-path       | CLIPHIST_CONFIG_PATH        |                   | (Optional) path to config (default `$XDG_CONFIG_HOME/cliphist/config`)                        |
