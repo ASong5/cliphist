@@ -243,6 +243,10 @@ func decode(dbPath string, in io.Reader, out io.Writer, input string) error {
 
 	b := tx.Bucket([]byte(bucketKey))
 	v := b.Get(itob(id))
+	if v == nil {
+		return fmt.Errorf("id %d not found", id)
+	}
+
 	if _, err := out.Write(v); err != nil {
 		return fmt.Errorf("writing out: %w", err)
 	}

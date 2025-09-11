@@ -10,7 +10,7 @@ stdout '^a$'
 exec cliphist decode 2
 stdout '^b$'
 
-exec cliphist decode 3
+! exec cliphist decode 3
 stdout '^$'
 
 ! exec cliphist decode
