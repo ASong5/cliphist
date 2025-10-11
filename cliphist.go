@@ -83,7 +83,7 @@ func main() {
 	case "delete":
 		err = delete(*dbPath, os.Stdin)
 	case "wipe":
-		err = wipe(*dbPath)
+		err = wipeAndCompact(*dbPath)
 	case "version":
 		fmt.Fprintf(flag.CommandLine.Output(), "%s\t%s\n", "version", strings.TrimSpace(version))
 		flag.VisitAll(func(f *flag.Flag) {
@@ -347,6 +347,16 @@ func delete(dbPath string, in io.Reader) error {
 	return nil
 }
 
+func wipeAndCompact(dbPath string) error {
+	if err := wipe(dbPath); err != nil {
+		return fmt.Errorf("wipe: %w", err)
+	}
+	if err := compactDB(dbPath); err != nil {
+		return fmt.Errorf("compact: %w", err)
+	}
+	return nil
+}
+
 func wipe(dbPath string) error {
 	db, err := initDB(dbPath)
 	if err != nil {
@@ -407,6 +417,43 @@ func initDBOption(path string, ro bool) (*bolt.DB, error) {
 		return nil, fmt.Errorf("init bucket: %w", err)
 	}
 	return db, nil
+}
+
+func compactDB(path string) error {
+	srcDB, err := bolt.Open(path, 0644, &bolt.Options{
+		ReadOnly: true,
+		Timeout:  1 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("open source db: %w", err)
+	}
+	defer srcDB.Close()
+
+	tmpPath := path + ".tmp"
+	dstDB, err := bolt.Open(tmpPath, 0644, &bolt.Options{
+		Timeout: 1 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("open destination db: %w", err)
+	}
+	defer dstDB.Close()
+
+	if err := bolt.Compact(dstDB, srcDB, 0); err != nil {
+		os.Remove(tmpPath)
+		return fmt.Errorf("compact db: %w", err)
+	}
+
+	if err := srcDB.Close(); err != nil {
+		return fmt.Errorf("close source db: %w", err)
+	}
+	if err := dstDB.Close(); err != nil {
+		return fmt.Errorf("close destination db: %w", err)
+	}
+
+	if err := os.Rename(tmpPath, path); err != nil {
+		return fmt.Errorf("replace db: %w", err)
+	}
+	return nil
 }
 
 func preview(index uint64, data []byte, width uint) string {
